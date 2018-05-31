@@ -1,7 +1,11 @@
 package com.task.sharelist.sharelist;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,51 +18,92 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.task.sharelist.sharelist.Model.User;
 
-public class RegistrationActivity extends AppCompatActivity {
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
-    FirebaseDatabase database;
-    DatabaseReference dbRef;
+public class RegistrationActivity extends AppCompatActivity implements View.OnClickListener {
 
-    EditText regName, regPassword;
-    Button registerBtn;
+
+    private FirebaseAuth firebaseAuth;
+    private EditText regName, regPassword;
+    private Button registerBtn;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registration);
 
-        database = FirebaseDatabase.getInstance();
-        dbRef = database.getReference("Users");
+        firebaseAuth = FirebaseAuth.getInstance();
 
+        //if user already logged in
+        if (firebaseAuth.getCurrentUser() != null)
+        {
+            finish();
+            //go to profile page
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+        }
+
+        //init views
         regName = (EditText) findViewById(R.id.regName);
         regPassword = (EditText) findViewById(R.id.regPassword);
-
         registerBtn = (Button) findViewById(R.id.registerBtn);
+        progressDialog = new ProgressDialog(this);
 
-        registerBtn.setOnClickListener(new View.OnClickListener() {
+        registerBtn.setOnClickListener(this);
+    }
+
+    private void registerUser() {
+        String email = regName.getText().toString().trim();
+        String password = regPassword.getText().toString().trim();
+
+        //check text field
+        if(TextUtils.isEmpty(email))
+        {
+            Toast.makeText(this, "Please Enter Email", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if(TextUtils.isEmpty(password))
+        {
+            Toast.makeText(this, "Please Enter Password", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //display progress dialog for registration
+        progressDialog.setMessage("Registering...");
+        progressDialog.show();
+
+        //creating User
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>()
+        {
             @Override
-            public void onClick(View v) {
-                final User user = new User( regName.getText().toString(), regPassword.getText().toString() );
-
-                dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.child(user.getUsername()).exists())
-                            Toast.makeText(RegistrationActivity.this, "The Username Already Exists", Toast.LENGTH_SHORT).show();
-                        else
-                        {
-                            dbRef.child(user.getUsername()).setValue(user);
-                            Toast.makeText(RegistrationActivity.this, "Registered", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            public void onComplete(@NonNull Task<AuthResult> task)
+            {
+                //check if successful
+                if(task.isSuccessful())
+                {
+                    finish();
+                    startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                }
+                //display unsuccessful message
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Registration Error", Toast.LENGTH_LONG).show();
+                }
+                progressDialog.dismiss();
             }
         });
+    }
 
+    @Override
+    public void onClick(View view)
+    {
+        if (view == registerBtn)
+        {
+            registerUser();
+        }
     }
 }
