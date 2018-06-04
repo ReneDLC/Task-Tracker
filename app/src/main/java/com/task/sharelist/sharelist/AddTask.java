@@ -21,7 +21,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.task.sharelist.sharelist.Model.Task;
 
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,6 +70,20 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
 
         taskDate.setOnClickListener(this);
         saveTaskBtn.setOnClickListener(this);
+        cancelTaskBtn.setOnClickListener(this);
+
+        if(getIntent().getExtras() != null)
+        {
+            Bundle extras = getIntent().getExtras();
+            Task task = (Task)extras.get("task");
+            if(task != null)
+            {
+
+                titleText.setText(task.getTitle());
+                descText.setText(task.getDescription());
+                taskDate.setText(task.getDate());
+            }
+        }
 
         mDateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
