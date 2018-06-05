@@ -35,6 +35,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
     private FirebaseAuth firebaseAuth;
     private Button saveTaskBtn;
     private Button cancelTaskBtn;
+    private Button deleteBtn;
     private EditText titleText;
     private EditText descText;
     private TextView taskDate;
@@ -63,6 +64,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
         taskDate = (TextView) findViewById(R.id.taskDate);
         saveTaskBtn = (Button) findViewById(R.id.saveTaskBtn);
         cancelTaskBtn = (Button) findViewById(R.id.cancelBtn);
+        deleteBtn = (Button) findViewById(R.id.deleteBtn);
         titleText = (EditText) findViewById(R.id.taskTitle);
         descText = (EditText) findViewById(R.id.taskDesc);
         taskDate = (TextView) findViewById(R.id.taskDate);
@@ -71,6 +73,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
         taskDate.setOnClickListener(this);
         saveTaskBtn.setOnClickListener(this);
         cancelTaskBtn.setOnClickListener(this);
+        deleteBtn.setOnClickListener(this);
 
         if(getIntent().getExtras() != null)
         {
@@ -124,6 +127,12 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
         });
     }
 
+    void deleteTask()
+    {
+        mRef.child(key).removeValue();
+
+    }
+
     public void onClick(View view)
     {
         if(view == saveTaskBtn)
@@ -157,6 +166,14 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
             );
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             dialog.show();
+        }
+
+        if(view == deleteBtn)
+        {
+            deleteTask();
+            finish();
+            startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+
         }
     }
 }
