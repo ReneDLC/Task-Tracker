@@ -7,6 +7,13 @@ public class Task implements Serializable{
     private String title;
     private String description;
     private String date;
+    private String key;
+
+
+    public String getKey() { return key; }
+
+    public void setKey(String key) { this.key = key; }
+
 
     public Task()
     {
@@ -40,13 +47,15 @@ public class Task implements Serializable{
         this.date = date;
     }
 
+
+
     public HashMap<String, String> toFirebaseObject()
     {
         HashMap<String, String> task = new HashMap<String, String>();
         task.put("title",title);
         task.put("description", description);
         task.put("date", date);
-
+        task.put("key", key);
         return task;
     }
 

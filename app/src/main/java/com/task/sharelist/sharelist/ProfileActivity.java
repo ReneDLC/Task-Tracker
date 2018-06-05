@@ -86,6 +86,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         for (DataSnapshot data : dataSnapshot.getChildren())
                         {
                             Task task = data.getValue(Task.class);
+                            task.setKey(data.getKey());
                             taskList.add(task);
                         }
                         adapter.notifyDataSetChanged();

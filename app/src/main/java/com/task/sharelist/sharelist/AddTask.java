@@ -40,7 +40,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
     private TextView taskDate;
     private ProgressDialog progressDialog;
     private DatePickerDialog.OnDateSetListener mDateSetListener;
-
+    private String key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +78,7 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
             Task task = (Task)extras.get("task");
             if(task != null)
             {
-
+                key = task.getKey();
                 titleText.setText(task.getTitle());
                 descText.setText(task.getDescription());
                 taskDate.setText(task.getDate());
@@ -99,12 +99,16 @@ public class AddTask extends AppCompatActivity implements View.OnClickListener{
 
     void saveTask()
     {
-        String key = mRef.push().getKey();
+        if (key == null)
+        {
+            key = mRef.push().getKey();
+        }
 
         Task task = new Task();
         task.setTitle(titleText.getText().toString());
         task.setDescription(descText.getText().toString());
         task.setDate(taskDate.getText().toString());
+        task.setKey(key);
 
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put(key, task.toFirebaseObject());
